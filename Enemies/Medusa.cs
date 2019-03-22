@@ -23,4 +23,8 @@ public class Medusa : Enemy
             E_MoveHorizontal(Dir, M_Speed);
         }
     }
+    public override void E_Hunchback()
+    {
+
+    }
 }

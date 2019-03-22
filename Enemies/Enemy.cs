@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Enemy : MonoBehaviour
+public abstract class Enemy : MonoBehaviour
 {
     protected Rigidbody2D E_Rb;
     private SpriteRenderer E_Sr;
@@ -25,7 +25,7 @@ public class Enemy : MonoBehaviour
         E_Sr = GetComponent<SpriteRenderer>();
     }
 
-    protected void E_MoveHorizontal(string dir, float speed)
+    public virtual void E_MoveHorizontal(string dir, float speed)
     {
         if (E_Pl.P_UpgradedWhipTimer == false)
         {
@@ -39,6 +39,8 @@ public class Enemy : MonoBehaviour
             }
         }
     }
+
+    public abstract void E_Hunchback();
 
     private void OnTriggerEnter2D(Collider2D col)
     {

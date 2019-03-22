@@ -20,10 +20,10 @@ public class HunchBack : Enemy
     // Update is called once per frame
     void Update()
     {
-        MoveHunchback();
+        E_Hunchback();
     }
 
-    public void MoveHunchback()
+    public override void E_Hunchback()
     {
         float check = HB_Pl.transform.position.x - transform.position.x;
         float LungeDistanceX = HB_Pl.transform.position.x - transform.position.x;
@@ -48,7 +48,6 @@ public class HunchBack : Enemy
                 {
                     E_Rb.velocity = new Vector2(LungeDistanceX, HB_LungeY);
                     HB_IsGrounded = false;
-                    Debug.Log("Hello");
                     HB_Sr.flipX = true;
                 }
             }

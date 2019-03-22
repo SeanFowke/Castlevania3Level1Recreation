@@ -69,7 +69,12 @@ public class Skeleton : Enemy
                 
                 S_Lock = true;
             }*/
+
         }
         
+    }
+    public override void E_Hunchback()
+    {
+
     }
 }

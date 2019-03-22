@@ -30,4 +30,8 @@ public class Zombie : Enemy
         }
 
     }
+    public override void E_Hunchback()
+    {
+
+    }
 }

@@ -7,7 +7,8 @@ using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
-
+    //private static Player instance;
+    // player variables
     public float P_Speed;
     [SerializeField] float P_StairSpeed;
     private Vector2 P_Horizontal;
@@ -24,9 +25,15 @@ public class Player : MonoBehaviour
     public bool P_IsOnStair;
     [SerializeField] float P_FallSpeed;
     private bool P_StairRight;
+    private Vector3 P_Start;
+    private ParticleSystem P_Ps;
+    private ParticleSystem P_Ps2;
+    private bool P_IsPause;
     //UI
-    [SerializeField] Text HealthText;
+    [SerializeField] Slider HealthBar;
     [SerializeField] Text HeartText;
+    [SerializeField] Text LiveText;
+    [SerializeField] Text PauseText;
 
     // inventory
     public bool P_Knife;
@@ -47,10 +54,17 @@ public class Player : MonoBehaviour
     private bool P_IsUsingSubWeapon;
     private bool P_HasBeenHit;
     private bool P_IsDead;
+    [SerializeField] float P_DeathTimerInitial;
+    private float P_DeathTimer;
+    [SerializeField] float P_Lives;
     // items
     public GameObject Knife;
     public float WeaponTimerInitial;
     private float WeaponTimer;
+    private void Awake()
+    {
+       
+    }
     void Start()
     {
         P_Rb = gameObject.GetComponent<Rigidbody2D>();
@@ -75,18 +89,30 @@ public class Player : MonoBehaviour
         P_IsOnStair = false;
         P_StairRight = true;
         P_HeartCounter = 0;
+        P_DeathTimer = P_DeathTimerInitial;
+        P_Start = gameObject.transform.position;
+        HealthBar = GameObject.Find("Health").GetComponent<Slider>();
+        HeartText = GameObject.Find("Heart").GetComponent<Text>();
+        LiveText = GameObject.Find("Lives").GetComponent<Text>();
+        PauseText = GameObject.Find("Paused").GetComponent<Text>();
+        P_Ps = GameObject.Find("Particle System").GetComponent<ParticleSystem>();
+        P_Ps2 = GameObject.Find("Particle System (1)").GetComponent<ParticleSystem>();
+        P_IsPause = false;
     }
 
     void Update()
-    {   
+    {
+        P_CheckDeath();
         P_HandleJump();
         P_HandleAttack();
         P_HandleMainAttack();
         P_HandleHorizontalMovement();
         P_HandleUI();
+        P_Pause();
+
     }
 
-
+    #region Movement
     public void P_HandleHorizontalMovement()
     {
         if(P_IsOnStair == true)
@@ -185,6 +211,7 @@ public class Player : MonoBehaviour
         }
     }
 
+    
     public void P_HandleJump()
     {
         if (Input.GetButtonDown("Jump") && P_IsJumping == false && P_IsRight == true && Input.GetAxis("Horizontal") > 0 && P_UpgradedWhipTimer == false && P_IsDead == false && P_IsOnStair == false)
@@ -214,7 +241,8 @@ public class Player : MonoBehaviour
         
 
     }
-
+    #endregion
+    #region Attack/Health
     public void P_HandleAttack()
     {
 
@@ -287,7 +315,34 @@ public class Player : MonoBehaviour
             P_IsDead = true;
             P_Anim.SetBool("Death", true);
         }
+        
 
+    }
+
+    public void P_CheckDeath()
+    {
+        if (P_IsDead == true)
+        {
+            P_DeathTimer -= Time.deltaTime;
+        }
+        if (P_DeathTimer <= 0 && P_Lives > 0)
+        {
+            P_Lives--;
+            P_IsDead = false;
+            P_CurrentHealth = P_TotalHealth;
+            gameObject.transform.position = P_Start;
+            Debug.Log(P_Lives);
+            P_DeathTimer = P_DeathTimerInitial;
+            P_Anim.SetBool("Death", false);
+            P_HeartCounter = 0;
+            P_UpgradedWhip = false;
+            P_Knife = false;
+        }
+        if (P_DeathTimer <= 0 && P_Lives <= 0)
+        {
+            Destroy(gameObject);
+            SceneManager.LoadScene(2);
+        }
     }
 
     public void P_HandleMainAttack()
@@ -341,13 +396,39 @@ public class Player : MonoBehaviour
             P_Anim.SetBool("SpecialAttackRight", false);
         }
     }
-
+    #endregion
+    #region UI
     public void P_HandleUI()
     {
-        HealthText.text = "Health : " + P_CurrentHealth.ToString();
+        HealthBar.value = P_CurrentHealth / P_TotalHealth;
         HeartText.text = "Hearts : " + P_HeartCounter.ToString();
+        LiveText.text = "Lives : " + P_Lives.ToString();
+        if (P_IsPause == true)
+        {
+            PauseText.enabled = true;
+        }
+        else
+        {
+            PauseText.enabled = false;
+        }
     }
-
+    #endregion
+    #region Pause
+    public void P_Pause()
+    {
+        if (Input.GetButtonDown("Submit") && P_IsPause == false)
+        {
+            P_IsPause = true;
+            Time.timeScale = 0;
+        }
+        else if (Input.GetButtonDown("Submit") && P_IsPause == true)
+        {
+            P_IsPause = false;
+            Time.timeScale = 1;
+        }
+    }
+    #endregion
+    #region Collisions
     private void OnCollisionEnter2D(Collision2D col)
     {
         if (col.gameObject.CompareTag("Ground"))
@@ -486,4 +567,18 @@ public class Player : MonoBehaviour
             P_IsOnStair = true;
         }
     }
+
+    private void OnTriggerEnter2D(Collider2D col)
+    {
+        if (col.CompareTag("Enemy") && P_IsAttack == true)
+        {
+            P_Ps.Play();
+        }
+        if (col.CompareTag("Candle") && P_IsAttack == true)
+        {
+            P_Ps2.Play();
+        }
+
+    }
+    #endregion 
 }

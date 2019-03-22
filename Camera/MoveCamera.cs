@@ -8,10 +8,11 @@ public class MoveCamera : MonoBehaviour
     [SerializeField] float C_BoundXNeg;
     [SerializeField] float C_BoundYPos;
     [SerializeField] float C_BoundYNeg;
-    [SerializeField] GameObject C_Pl;
+    [SerializeField] Transform C_Pl;
     [SerializeField] bool IsVertical;
     void Start()
     {
+        C_Pl = GameObject.Find("Player").GetComponent<Transform>();
     }
 
     void LateUpdate()

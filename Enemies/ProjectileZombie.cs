@@ -43,5 +43,8 @@ public class ProjectileZombie : Enemy
         PZ_Anim.SetBool("IsFiring", false);
     }
 
-
+    public override void E_Hunchback()
+    {
+        
+    }
 }
